@@ -1,6 +1,34 @@
-class Customer {}
+class Customer {
+    constructor (id, name, email)
+    {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    }
+get info(){
+    return`${this.name}, ${this.email}`
+    }
 
-class Reservation {}
+}
+class Reservation {
+    constructor (id,costumer,date, guests){
+        this.id = id;
+        this.customer = costumer;
+        this.date = date;
+        this.guests = guests;
+    }
+    get info(){
+        return {customer:this.customer.info, date:this.date, guests:this.guests}
+    }
+static validateReservation(date, guests){
+    if (new Date(date)> new Date() && guests>0){
+        return true;
+    }else{
+        return false;
+    }
+
+}
+}
 
 class Restaurant {
     constructor(name) {
@@ -31,7 +59,7 @@ class Restaurant {
                             </p>
                         </div>
                     </div>
-              `;
+            `;
             container.appendChild(reservationCard);
         });
     }

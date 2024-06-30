@@ -6,13 +6,53 @@ class Currency {
 }
 
 class CurrencyConverter {
-    constructor() {}
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+        this.currencies = [];
+    }
 
-    getCurrencies(apiUrl) {}
+    async getCurrencies(){
+        try {
+            const response = await fetch(`${this.apiUrl}/currencies`);
+            const data = await response.json();
+            Object.entries(data).forEach(([code, name]) => {
+                let tipoMoneda = new Currency(code, name);
+                this.currencies.push(tipoMoneda);
+            });
+            console.log (this.currencies)
+        } catch (error){
+        console.log("error", error);
+        }
+    }
 
-    convertCurrency(amount, fromCurrency, toCurrency) {}
+    async convertCurrency(amount, fromCurrency, toCurrency){
+        if (fromCurrency == toCurrency){
+            return parseFloat (amount);
+        } 
+        try{
+            const response = await fetch(`${this.apiUrl}/latest?amount=${amount}&from=${fromCurrency.code}&to=${toCurrency.code}`);
+            const data = await response.json();
+            return data.rates[toCurrency.code];
+        } catch (error) {
+                console.log("error", error);
+        }
+    }    
+        populateCurrencySelects() {
+            const fromSelect = document.getElementById('from-currency');
+            const toSelect = document.getElementById('to-currency');
+            this.currencies.forEach(currency => {
+                const optionFrom = document.createElement('option');
+                optionFrom.value = currency.code;
+                optionFrom.textContent = `${currency.code} - ${currency.name}`;
+                fromSelect.appendChild(optionFrom);
+    
+                const optionTo = document.createElement('option');
+                optionTo.value = currency.code;
+                optionTo.textContent = `${currency.code} - ${currency.name}`;
+                toSelect.appendChild(optionTo);
+            });
+        }
 }
-
 document.addEventListener("DOMContentLoaded", async () => {
     const form = document.getElementById("conversion-form");
     const resultDiv = document.getElementById("result");

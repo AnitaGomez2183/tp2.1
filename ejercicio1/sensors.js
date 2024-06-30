@@ -1,6 +1,22 @@
-class Sensor {}
+class Sensor {
+    constructor (id, name, type, value, unit, updated_at){
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.value = value;
+        this.unit = unit;
+        this.updated_at = updated_at;
+
+    }
+    set updateValue (value){
+        this.value = value;
+        this.updated_at = new Date().toISOString()
+    }
+
+}
 
 class SensorManager {
+    
     constructor() {
         this.sensors = [];
     }
@@ -33,7 +49,35 @@ class SensorManager {
         }
     }
 
-    async loadSensors(url) {}
+
+    async loadSensors(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Error al cargar el archivo de sensores');
+            }
+            const data = await response.json();
+            data.forEach(sensor => {
+                try {
+                    let sensorNuevo = new Sensor(
+                        sensor.id,
+                        sensor.type,
+                        sensor.value,
+                        sensor.unit, 
+                        sensor.updated_at
+                    );
+                    this.addSensor(sensorNuevo);
+                } catch (error){
+                    console.log ("error", error);
+                }
+            });
+            console.log(this.sensor)
+            this.render();
+
+        } catch (error) {
+            console.error('Error al cargar los sensores:', error);
+        }
+    }
 
     render() {
         const container = document.getElementById("sensor-container");
@@ -54,8 +98,8 @@ class SensorManager {
                                 <strong>Tipo:</strong> ${sensor.type}
                             </p>
                             <p>
-                               <strong>Valor:</strong> 
-                               ${sensor.value} ${sensor.unit}
+                            <strong>Valor:</strong> 
+                            ${sensor.value} ${sensor.unit}
                             </p>
                         </div>
                         <time datetime="${sensor.updated_at}">

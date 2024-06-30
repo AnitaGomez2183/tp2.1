@@ -10,15 +10,15 @@ class Card {
         const cardElement = document.createElement("div");
         cardElement.classList.add("cell");
         cardElement.innerHTML = `
-          <div class="card" data-name="${this.name}">
-              <div class="card-inner">
-                  <div class="card-front"></div>
-                  <div class="card-back">
-                      <img src="${this.img}" alt="${this.name}">
-                  </div>
-              </div>
-          </div>
-      `;
+            <div class="card" data-name="${this.name}">
+                <div class="card-inner">
+                    <div class="card-front"></div>
+                    <div class="card-back">
+                        <img src="${this.img}" alt="${this.name}">
+                    </div>
+                </div>
+            </div>
+        `;
         return cardElement;
     }
 
@@ -30,6 +30,22 @@ class Card {
     #unflip() {
         const cardElement = this.element.querySelector(".card");
         cardElement.classList.remove("flipped");
+    }
+
+    toggleFlip() {
+        if (this.isFlipped) {
+            this.isFlipped = false;
+            this.#unflip()
+    } else {
+        this.isFlipped = true;
+        this.#flip();
+    }
+    }
+    matches(otherCards){
+        if (this.name === otherCards.name) {
+            return true
+        } 
+        return false   
     }
 }
 
@@ -74,6 +90,32 @@ class Board {
             this.onCardClick(card);
         }
     }
+
+    shuffleCards(){
+        let cartas = this.cards
+        for (let i = cartas.length - 1; i > 0; i--){
+            const j = Math.floor(Math.random() * (i + 1));
+            [cartas[i], cartas[j]] = [cartas[j], cartas[i]]
+        }
+        return cartas;
+    } 
+    
+    
+    flipDownAllCards(){
+        let cartas = this.cards;
+        cartas.forEach(carta => {
+            carta.isFlipped = true;
+            carta.toggleFlip();
+        })
+    }
+    
+    
+    
+    reset(){
+        this.flipDownAllCards();
+        this.shuffleCards();
+        this.render();
+    }
 }
 
 class MemoryGame {
@@ -101,6 +143,24 @@ class MemoryGame {
                 setTimeout(() => this.checkForMatch(), this.flipDuration);
             }
         }
+    }
+
+    checkForMatch(){
+        let cartas = this.flippedCards;
+        if (cartas[0].matches(cartas [1])) {
+            this.matchedCards.push(cartas[0])
+            this.matchedCards.push(cartas[1])
+        }
+        else {
+            cartas[0].toggleFlip();
+            cartas[1].toggleFlip();
+        }
+        this.flippedCards = [];    
+    }
+
+    resetGame(){
+        this.board.reset();
+        this.matchedCards = [];
     }
 }
 
